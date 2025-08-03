@@ -1,75 +1,73 @@
-# Nuxt Minimal Starter
+# Новостное приложение на Nuxt 3
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Проект представляет собой SPA для просмотра новостей с возможностью фильтрации, поиска и переключения между режимами отображения (сетка/список).
 
-## Setup
+[![Nuxt](https://img.shields.io/badge/Nuxt-4.0.1-00DC82?logo=nuxtdotjs&logoColor=white)](https://nuxt.com/)
+[![Vue](https://img.shields.io/badge/Vue-3.5.18-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+[![npm](https://img.shields.io/badge/npm-11.5.2-CB3837?logo=npm&logoColor=white)](https://www.npmjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Pinia](https://img.shields.io/badge/Pinia-2.1-FFD02F?logo=vue.js&logoColor=333)](https://pinia.vuejs.org/)
 
-Make sure to install dependencies:
+## 🚀 Функциональность
+
+### ✅ Реализовано
+- [x] Фильтрация новостей по источнику (`source`)
+- [x] Поиск по заголовку/содержанию с debounce
+- [x] Переключение между режимами отображения (Grid/List)
+- [x] Сохранение выбранного режима в `localStorage`
+- [x] Синхронизация фильтров с URL-параметрами
+- [x] Адаптивный заголовок и панель управления
+
+### ⏳ В планах
+- [ ] Пагинация новостей
+- [ ] Полная адаптация под мобильные устройства
+- [ ] Написание тестов (Vitest + Testing Library)
+- [ ] Оптимизация загрузки данных (кеширование)
+
+## 🛠 Технологии
+- Nuxt 3 (Vue 3)
+- Pinia (стейт-менеджмент)
+- TypeScript
+- SCSS (стилизация)
+
+## 🛠 Установка зависимостей
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
+## 🖥 Разработка
+Запуск dev-сервера:
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+### Приложение будет доступно по адресу:
+http://localhost:3000
 
-Build the application for production:
-
-```bash
-# npm
+## Сборка для production
+```
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 🏗 Структура проекта
+
+```markdown
+📦 news-app
+
+├── assets/         # CSS, изображения, шрифты
+├── components/     # UI компоненты (Vue)
+├── composables/    # Логика приложения (хуки)
+├── layouts/        # Шаблоны страниц
+├── pages/          # Страницы приложения
+├── public/         # Публичные файлы
+├── server/         # Серверная часть
+│   └── api/        # API эндпоинты
+├── stores/         # Pinia хранилища
+├── types/          # Типы TypeScript
+├── utils/          # Вспомогательные утилиты
+├── app.vue         # Корневой компонент (входная точка)
+├── nuxt.config.ts  # Конфигурация Nuxt
+└── package.json    # Зависимости и скрипты
+```
