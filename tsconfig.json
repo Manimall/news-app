@@ -1,0 +1,23 @@
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "@/*": ["./*"],
+      "#imports": ["./.nuxt/imports.d.ts"]
+    },
+    "types": [
+      "@pinia/nuxt"
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.vue",
+    ".nuxt/**/*.d.ts",
+    "types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
