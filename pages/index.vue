@@ -1,55 +1,77 @@
 <script setup lang="ts">
 import NewsGrid from '~/components/NewsGrid.vue'
 import NewsList from '~/components/NewsList.vue'
+import Pagination from '~/components/Pagination.vue'
 import { useNewsStore } from '~/stores/news'
-import type { FilterSource } from '~/types/news'
 import { debounce } from '~/utils/debounce'
 
 const route = useRoute()
 const router = useRouter()
 const store = useNewsStore()
-const searchQuery = ref(route.query.search?.toString() || '')
 
 // Инициализация
-onMounted(async () => {
-  store.initClientSide()
-  await syncStoreWithRoute()
-  await store.fetchNews()
-})
+const init = async () => {
+  try {
+    store.initClientSide();
+    await store.syncWithRoute();
 
-// Синхронизация с URL
-const syncStoreWithRoute = () => {
-  store.filters.source = (route.query.source as FilterSource) || 'all'
-  store.filters.search = route.query.search?.toString() || ''
-  store.pagination.page = Number(route.query.page) || 1
-  searchQuery.value = store.filters.search
-}
-
-// Поиск с debounce
-const applySearch = debounce((query: string) => {
-  store.filters.search = query
-  router.push({
-    query: {
-      ...route.query,
-      search: query || undefined,
-      page: 1
+    if (store.items.length === 0 || route.query.search || route.query.page) {
+      await store.fetchNews();
     }
-  })
-}, 300)
+  } catch (error) {
+    console.error('Ошибка при инициализации:', error);
+  }
+};
 
-// Реакция на ввод
-watch(searchQuery, (newVal) => {
-  applySearch(newVal)
-})
+init();
 
+// Оптимизированный поиск с debounce
+const applySearch = async (query: string) => {
+  try {
+    if (store.filters.search === query && store.pagination.page === 1) return;
+
+    store.filters.search = query;
+    store.pagination.page = 1;
+
+    await router.push({
+      query: {
+        ...route.query,
+        search: query || undefined,
+        page: undefined,
+      }
+    });
+  } catch (error) {
+    console.error('Ошибка при поиске:', error);
+  }
+};
+
+const searchQuery = computed({
+  get: () => route.query.search?.toString() || '',
+  set: debounce((value: string) => {
+    applySearch(value);
+  }, 500),
+});
+
+// Реакция на изменение URL
 watch(
-  () => route.query,
-  async () => {
-    await syncStoreWithRoute()
-    await store.fetchNews()
+  () => ({
+    search: route.query.search,
+    page: route.query.page,
+    source: route.query.source
+  }),
+  async (newQuery, oldQuery) => {
+    // Пропускаем идентичные изменения
+    if (JSON.stringify(newQuery) === JSON.stringify(oldQuery)) return;
+
+    try {
+      await store.syncWithRoute();
+      await store.fetchNews();
+    } catch (error) {
+      console.error('Ошибка при изменении URL:', error);
+    }
   },
   { deep: true }
-)
+);
 </script>
 
 <template>
@@ -57,29 +79,47 @@ watch(
     <header class="news-header">
       <h2 class="news-title">Список новостей</h2>
       <ResetFilters />
-
-      <NewsSearch v-model="searchQuery" />
+      <NewsSearch v-model="searchQuery" :loading="store.isLoading" />
     </header>
 
     <main class="news-content">
       <div class="controls-row">
-        <NewsFilter v-model="store.filters.source" />
+        <NewsFilter v-model="store.filters.source" :disabled="store.isLoading" />
 
-        <!-- add preloader -->
         <ClientOnly>
           <ViewSwitcher
             :current="store.view"
             @change="(mode) => store.setView(mode)"
             class="view-switcher"
+            :disabled="store.isLoading"
           />
         </ClientOnly>
       </div>
 
       <ClientOnly>
-        <component
-          :is="store.view === 'grid' ? NewsGrid : NewsList"
-          :items="store.paginatedNews"
-        />
+        <template v-if="store.isLoading">
+          <div class="loading-spinner">Загрузка...</div>
+        </template>
+
+        <template v-else-if="store.error">
+          <div class="error-message">
+            {{ store.error }}
+            <button @click="store.fetchNews" class="retry-button">Повторить</button>
+          </div>
+        </template>
+
+        <template v-else-if="store.items.length === 0">
+          <div class="empty-message">Новости не найдены</div>
+        </template>
+
+        <template v-else>
+          <component
+            :is="store.view === 'grid' ? NewsGrid : NewsList"
+            :items="store.items"
+            :key="`${store.view}-${store.pagination.page}-${store.filters.search}`"
+          />
+          <Pagination />
+        </template>
       </ClientOnly>
     </main>
   </div>
@@ -90,9 +130,44 @@ watch(
   display: flex;
   align-items: center;
   padding-bottom: 30px;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #e5e5e5;
   gap: 16px;
 }
+
+.error-message {
+  padding: 20px;
+  background: #ffeeee;
+  color: #ff4444;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.retry-button {
+  padding: 8px 16px;
+  background: #00dc82;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
 .news-title {
   margin: 0;
   font-family: Arial;
@@ -100,17 +175,19 @@ watch(
   font-size: 36px;
   line-height: 100%;
   letter-spacing: 0;
-
 }
+
 .news-content {
   margin-top: 30px;
 }
+
 .controls-row {
   display: flex;
   align-items: center;
   margin-bottom: 30px;
   min-height: 40px;
 }
+
 .view-switcher {
   margin-left: auto;
 }

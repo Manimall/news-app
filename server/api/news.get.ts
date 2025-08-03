@@ -61,7 +61,7 @@ async function fetchAndParseRss(sourceKey: string, url: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  const { source = 'all' } = getQuery(event)
+  const { source = 'all', page = 1, limit = 10, search } = getQuery(event)
   const config = useRuntimeConfig().public.rssFeeds
 
   const sources = source === 'all'
@@ -72,8 +72,27 @@ export default defineEventHandler(async (event) => {
     sources.map(([sourceKey, url]) => fetchAndParseRss(sourceKey, url))
   )
 
-  return results
+  let allItems = results
     .flat()
     .filter(item => item.title)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+  if (search) {
+    const searchTerm = String(search).toLowerCase();
+    allItems = allItems.filter(item =>
+      item.title.toLowerCase().includes(searchTerm) ||
+      item.content.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // Пагинация на стороне сервера
+  const start = (Number(page) - 1) * Number(limit)
+  const paginatedItems = allItems.slice(start, start + Number(limit))
+
+  return {
+    data: paginatedItems,
+    total: allItems.length,
+    page: Number(page),
+    limit: Number(limit),
+  }
 })

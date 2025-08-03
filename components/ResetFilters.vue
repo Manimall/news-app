@@ -1,26 +1,11 @@
 <script setup lang="ts">
 import ResetIcon from '~/assets/icons/reset.svg'
+import { useNewsStore } from '~/stores/news'
 
-const router = useRouter()
 const store = useNewsStore()
 
-const handleReset = () => {
-  // update filters
-  store.$patch({
-    filters: {
-      source: 'all',
-      search: ''
-    },
-    pagination: {
-      page: 1
-    }
-  })
-
-  // clean query-params URL
-  router.push({ query: {} })
-
-  // fetch new data
-  store.fetchNews()
+const handleReset = async () => {
+  await store.resetFilters()
 }
 </script>
 
@@ -29,8 +14,9 @@ const handleReset = () => {
     class="reset-filters-button"
     @click="handleReset"
     aria-label="Сбросить фильтры"
+    :disabled="store.filters.source === 'all' && !store.filters.search || store.isLoading"
   >
-    <ResetIcon class="reset-icon" />
+    <ResetIcon class="reset-icon" :class="{ 'animate-spin': store.isLoading }" />
     <span class="visually-hidden">Сбросить всё</span>
   </button>
 </template>
@@ -48,13 +34,18 @@ const handleReset = () => {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.reset-filters-button:hover {
+.reset-filters-button:hover:not(:disabled) {
   background: #f8fafc;
   border-color: #cbd5e1;
 }
 
-.reset-filters-button:active {
+.reset-filters-button:active:not(:disabled) {
   background: #f1f5f9;
+}
+
+.reset-filters-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .reset-icon {
@@ -64,20 +55,20 @@ const handleReset = () => {
   transition: color 0.2s ease;
 }
 
-.reset-filters-button:hover .reset-icon {
+.reset-filters-button:hover:not(:disabled) .reset-icon {
   color: #475569;
 }
 
 .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    border: 0;
-    padding: 0;
-    white-space: nowrap;
-    clip-path: inset(100%);
-    clip: rect(0 0 0 0);
-    overflow: hidden;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  white-space: nowrap;
+  clip-path: inset(100%);
+  clip: rect(0 0 0 0);
+  overflow: hidden;
 }
 </style>

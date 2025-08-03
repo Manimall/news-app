@@ -19,4 +19,5 @@ export interface NewsFilters {
 export interface NewsPagination {
   page: number
   limit: number
+  total: number
 }

@@ -20,7 +20,6 @@ defineEmits(['update:modelValue', 'search'])
         placeholder="Поиск новостей..."
         type="search"
         @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-        @keyup.enter="$emit('search')"
       >
       <button class="search-button" @click="$emit('search')">
         <SearchIcon class="search-icon" />
