@@ -1,5 +1,15 @@
 import { parseString } from 'xml2js'
 
+const getDescription = (desc: string[] | string) => {
+  if (!desc || (Array.isArray(desc) && desc.join('').trim() === '')) {
+    return 'Описание текущей новости отсутствует'
+  }
+
+  const text = Array.isArray(desc) ? desc.join(' ') : desc
+
+  return text.trim().replace(/\s+/g, ' ')
+};
+
 async function fetchAndParseRss(sourceKey: string, url: string) {
   try {
     if (!url) {
@@ -47,7 +57,7 @@ async function fetchAndParseRss(sourceKey: string, url: string) {
       return {
         id: item.guid?.[0]?._ || item.guid?.[0] || item.link?.[0],
         title: item.title?.[0] || 'Без названия',
-        content: item.description?.[0] || item.content?.[0] || '',
+        content: getDescription(item.description) || getDescription(item.content) || '',
         date: item.pubDate?.[0] || item.date?.[0] || new Date().toISOString(),
         source: sourceKey,
         image: imageUrl || null,
@@ -85,7 +95,7 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-  // Пагинация на стороне сервера
+  // server pagination
   const start = (Number(page) - 1) * Number(limit)
   const paginatedItems = allItems.slice(start, start + Number(limit))
 

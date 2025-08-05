@@ -105,7 +105,12 @@ export const useNewsStore = defineStore('news', {
     },
 
     resetFilters() {
-      if (this.filters.source === 'all' && !this.filters.search) return
+      const needReset =
+        this.filters.source !== 'all' ||
+        this.filters.search ||
+        this.pagination.page !== 1;
+
+      if (!needReset) return;
 
       this.$patch({
         filters: { source: 'all', search: '' },
@@ -146,6 +151,14 @@ export const useNewsStore = defineStore('news', {
         this.totalPages
       )
       return calculateVisiblePages()
+    },
+
+    isFirstPage(): boolean {
+      return this.pagination.page === 1;
+    },
+
+    isLastPage(): boolean {
+      return this.pagination.page >= this.totalPages;
     },
   }
 })

@@ -55,7 +55,7 @@ defineEmits(['update:modelValue', 'search'])
 .search-input:focus {
   outline: none;
   background: white;
-  box-shadow: 0 0 0 2px rgb(53 172 247 / 40%);
+  box-shadow: 0 0 0 2px rgb(53 172 247 / 30%);
 }
 
 .search-button {
@@ -75,7 +75,7 @@ defineEmits(['update:modelValue', 'search'])
 }
 
 .search-input:focus + .search-button .search-icon {
-  color: #3b82f6;
+  color: #0029FF;
 }
 
 @media (max-width: 768px) {

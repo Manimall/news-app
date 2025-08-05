@@ -1,19 +1,20 @@
 <script setup lang="ts">
 </script>
 
+<!-- or we can turn off layout for index.page -->
 <template>
   <div class="layout">
-    <header class="header">
+    <!-- <header class="header">
       <h1>Портал новостей</h1>
-    </header>
+    </header> -->
 
     <main class="main">
       <slot /> <!-- страницы -->
     </main>
 
-    <footer class="footer">
+    <!-- <footer class="footer">
       <p>© 2025 Новостной портал. Все права защищены.</p>
-    </footer>
+    </footer> -->
   </div>
 </template>
 

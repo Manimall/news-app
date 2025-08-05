@@ -7,22 +7,29 @@ const handlePageChange = (page: number) => {
 </script>
 
 <template>
-  <div v-if="store.totalPages > 1" class="pagination">
+  <nav
+    v-if="store.totalPages > 1"
+    class="pagination"
+    aria-label="Навигация по страницам"
+  >
     <button
-      class="pagination-button"
-      :disabled="store.pagination.page === 1 || store.isLoading"
+      class="pagination-button pagination-button--nav"
+      :disabled="store.isFirstPage || store.isLoading"
       @click="handlePageChange(store.pagination.page - 1)"
+      aria-label="Предыдущая страница"
     >
       ← Назад
     </button>
 
-    <template v-for="item in store.visiblePages" :key="item">
+    <template v-for="(item, index) in store.visiblePages" :key="`page-${index}-${item}`">
       <button
         v-if="typeof item === 'number'"
         class="pagination-button"
         :class="{ active: item === store.pagination.page }"
         :disabled="store.isLoading"
         @click="handlePageChange(item)"
+        :aria-label="`Страница ${item}`"
+        :aria-current="item === store.pagination.page ? 'page' : undefined"
       >
         {{ item }}
       </button>
@@ -32,13 +39,14 @@ const handlePageChange = (page: number) => {
     </template>
 
     <button
-      class="pagination-button"
-      :disabled="store.pagination.page >= store.totalPages || store.isLoading"
+      class="pagination-button pagination-button--nav"
+      :disabled="store.isLastPage || store.isLoading"
       @click="handlePageChange(store.pagination.page + 1)"
+      aria-label="Следующая страница"
     >
       Вперед →
     </button>
-  </div>
+  </nav>
 </template>
 
 <style scoped>
@@ -47,28 +55,33 @@ const handlePageChange = (page: number) => {
   justify-content: center;
   align-items: center;
   gap: 8px;
-  margin-top: 32px;
+  margin-top: 40px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
 .pagination-button {
-  padding: 8px 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 4px;
-  background: white;
+  padding: 8px 4px;
+  border: none;
+  color: #000000;
+  background: transparent;
   cursor: pointer;
   transition: all 0.2s;
-  min-width: 40px;
+  min-width: 24px;
+  font-family: Arial;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 100%;
+  letter-spacing: 0;
+  user-select: none;
 }
 
 .pagination-button:hover:not(:disabled) {
-  background: #f5f5f5;
+  color: #0029FF;
 }
 
 .pagination-button.active {
-  background: #00dc82;
-  color: white;
-  border-color: #00dc82;
+  color: #0029FF;
 }
 
 .pagination-button:disabled {
@@ -79,5 +92,11 @@ const handlePageChange = (page: number) => {
 .pagination-separator {
   padding: 0 8px;
   user-select: none;
+}
+
+.pagination-button--nav {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 100%;
 }
 </style>

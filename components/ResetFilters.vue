@@ -7,6 +7,15 @@ const store = useNewsStore()
 const handleReset = async () => {
   await store.resetFilters()
 }
+
+// вычисляемое свойство для disabled состояния
+const isDisabled = computed(() => {
+  return (
+    store.filters.source === 'all' &&
+    !store.filters.search &&
+    store.pagination.page === 1
+  ) || store.isLoading
+})
 </script>
 
 <template>
@@ -14,7 +23,7 @@ const handleReset = async () => {
     class="reset-filters-button"
     @click="handleReset"
     aria-label="Сбросить фильтры"
-    :disabled="store.filters.source === 'all' && !store.filters.search || store.isLoading"
+    :disabled="isDisabled"
   >
     <ResetIcon class="reset-icon" :class="{ 'animate-spin': store.isLoading }" />
     <span class="visually-hidden">Сбросить всё</span>
