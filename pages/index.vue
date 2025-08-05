@@ -132,6 +132,7 @@ watch(
   padding-bottom: 30px;
   border-bottom: 1px solid #e5e5e5;
   gap: 16px;
+  white-space: nowrap;
 }
 
 .error-message {
@@ -190,5 +191,44 @@ watch(
 
 .view-switcher {
   margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .news-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 30px;
+  }
+
+  .news-title {
+    font-size: 24px;
+    margin-right: 0;
+  }
+
+  .news-header > :not(.news-title):not(.news-search) {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .controls-row {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .news-content {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  .news-header > :not(.news-title):not(.news-search) {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .view-switcher {
+    margin-left: 0;
+  }
 }
 </style>

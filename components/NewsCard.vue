@@ -110,7 +110,13 @@ const imageError = (event: Event) => {
 }
 
 .news-card--grid .image-wrapper {
-  max-height: 215px;
+  max-height: 210px;
+}
+
+@media (max-width: 1200px) {
+  .news-card--grid .image-wrapper {
+    height: 210px;
+  }
 }
 
 /* Стили для list-режима */
@@ -125,7 +131,22 @@ const imageError = (event: Event) => {
   flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  .news-card--list .news-list-container {
+    gap: 0;
+  }
+
+  .news-card--list .image-wrapper {
+    width: 280px;
+    flex: 0 1 auto;
+  }
+
+  .news-card--list .card-content {
+    flex: 1 0 auto
+  }
+}
+
+@media (max-width: 500px) {
   .news-card--list .news-list-container {
     flex-direction: column;
   }

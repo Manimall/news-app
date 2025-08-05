@@ -44,6 +44,7 @@ const activeFilter = computed<FilterSource>({
 <style scoped>
 .filters {
   display: flex;
+  flex: 1 0 auto;
 }
 
 .filters-list {

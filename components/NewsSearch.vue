@@ -31,7 +31,7 @@ defineEmits(['update:modelValue', 'search'])
 <style scoped>
 .news-search {
   width: 100%;
-  max-width: 500px;
+  max-width: 450px;
   margin-left: auto;
 }
 
@@ -78,16 +78,23 @@ defineEmits(['update:modelValue', 'search'])
   color: #0029FF;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .news-search {
-    max-width: 100%;
-    margin-bottom: 15px;
+    width: 100%;
+    order: 1;
+    margin-left: 0;
   }
 
   .search-input {
     padding: 10px 15px;
     padding-right: 45px;
     font-size: 14px;
+  }
+}
+
+@media (max-width: 500px) {
+  .news-search {
+    max-width: 100%;
   }
 }
 </style>

@@ -56,7 +56,7 @@ const handlePageChange = (page: number) => {
   align-items: center;
   gap: 8px;
   margin-top: 40px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 
@@ -98,5 +98,18 @@ const handlePageChange = (page: number) => {
   font-weight: 500;
   font-size: 18px;
   line-height: 100%;
+}
+
+@media (max-width: 500px) {
+  .pagination {
+    gap: 3px;
+    margin-bottom: 0px;
+  }
+
+  .pagination-button--nav {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 100%;
+  }
 }
 </style>

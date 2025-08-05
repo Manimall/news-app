@@ -25,4 +25,13 @@ defineProps<{
   gap: 24px;
   padding: 0;
 }
+
+@media (max-width: 767px) {
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+    padding: 0;
+  }
+}
 </style>
