@@ -1,9 +1,16 @@
 <script setup lang="ts">
 const store = useNewsStore();
+const route = useRoute();
+
+const { goToPage } = usePagination()
 
 const handlePageChange = (page: number) => {
-  store.goToPage(page);
-};
+  if (!store.isLoading) {
+    goToPage(page, store.totalPages)
+  }
+}
+
+const currentPage = computed(() => Number(route.query.page) || 1);
 </script>
 
 <template>
@@ -15,7 +22,7 @@ const handlePageChange = (page: number) => {
     <button
       class="pagination-button pagination-button--nav"
       :disabled="store.isFirstPage || store.isLoading"
-      @click="handlePageChange(store.pagination.page - 1)"
+      @click="handlePageChange(currentPage - 1)"
       aria-label="Предыдущая страница"
     >
       ← Назад
@@ -25,11 +32,11 @@ const handlePageChange = (page: number) => {
       <button
         v-if="typeof item === 'number'"
         class="pagination-button"
-        :class="{ active: item === store.pagination.page }"
+        :class="{ active: item === currentPage }"
         :disabled="store.isLoading"
         @click="handlePageChange(item)"
         :aria-label="`Страница ${item}`"
-        :aria-current="item === store.pagination.page ? 'page' : undefined"
+        :aria-current="item === currentPage ? 'page' : undefined"
       >
         {{ item }}
       </button>
@@ -41,7 +48,7 @@ const handlePageChange = (page: number) => {
     <button
       class="pagination-button pagination-button--nav"
       :disabled="store.isLastPage || store.isLoading"
-      @click="handlePageChange(store.pagination.page + 1)"
+      @click="handlePageChange(currentPage + 1)"
       aria-label="Следующая страница"
     >
       Вперед →

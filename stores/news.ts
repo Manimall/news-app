@@ -2,35 +2,24 @@ import { defineStore } from 'pinia'
 import type {
   NewsItem,
   NewsViewMode,
-  NewsFilters,
-  NewsPagination,
   FilterSource
 } from '~/types/news'
 
 interface NewsState {
   items: NewsItem[]
   view: NewsViewMode
-  filters: NewsFilters
-  pagination: NewsPagination
   isLoading: boolean
   error: string | null
+  totalItems: number
 }
 
 export const useNewsStore = defineStore('news', {
   state: (): NewsState => ({
     items: [],
     view: 'grid',
-    filters: {
-      source: 'all',
-      search: ''
-    },
-    pagination: {
-      page: 1,
-      limit: 10,
-      total: 0
-    },
     isLoading: false,
     error: null,
+    totalItems: 0
   }),
 
   actions: {
@@ -38,16 +27,22 @@ export const useNewsStore = defineStore('news', {
       try {
         if (this.isLoading) return
 
+        const route = useRoute()
         this.isLoading = true
         this.error = null
 
         const { fetchNews } = useFetchNews()
-        const { data, error } = await fetchNews(this.filters, this.pagination)
+        const { data, error } = await fetchNews({
+          source: route.query.source as FilterSource,
+          search: route.query.search?.toString(),
+          page: Number(route.query.page),
+          limit: PAGINATION_LIMIT,
+        })
 
         if (error.value) throw new Error(error.value.message)
 
         this.items = data?.data || []
-        this.pagination.total = data?.total || 0
+        this.totalItems = data?.total || 0
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to fetch news'
       } finally {
@@ -55,45 +50,14 @@ export const useNewsStore = defineStore('news', {
       }
     },
 
-    async goToPage(page: number) {
-      if (
-        page === this.pagination.page ||
-        page < 1 ||
-        page > this.totalPages
-      ) return
-
-      this.pagination.page = page
-      const router = useRouter()
-
-      await router.push({
-        query: {
-          ...router.currentRoute.value.query,
-          page: page > 1 ? page : undefined
-        }
-      })
-
-      if (import.meta.client) {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      }
-    },
-
-    async syncWithRoute() {
-      const route = useRoute()
-      this.pagination.page = Number(route.query.page) || 1
-      this.filters.source = (route.query.source as FilterSource) || 'all'
-      this.filters.search = route.query.search?.toString() || ''
-    },
-
     updateSourceFilter(source: FilterSource) {
-      if (this.filters.source === source) return
-
-      this.filters.source = source
-      this.pagination.page = 1
+      const route = useRoute()
+      if ((route.query.source as FilterSource) === source) return
 
       const router = useRouter()
       router.push({
         query: {
-          ...router.currentRoute.value.query,
+          ...route.query,
           source,
           page: undefined
         }
@@ -105,17 +69,13 @@ export const useNewsStore = defineStore('news', {
     },
 
     resetFilters() {
+      const route = useRoute()
       const needReset =
-        this.filters.source !== 'all' ||
-        this.filters.search ||
-        this.pagination.page !== 1;
+        route.query.source ||
+        route.query.search ||
+        route.query.page;
 
-      if (!needReset) return;
-
-      this.$patch({
-        filters: { source: 'all', search: '' },
-        pagination: { ...this.pagination, page: 1 }
-      })
+      if (!needReset) return
 
       const router = useRouter()
       router.push({ query: {} })
@@ -123,7 +83,6 @@ export const useNewsStore = defineStore('news', {
 
     setView(view: NewsViewMode) {
       if (this.view === view) return
-
       this.view = view
       if (import.meta.client) {
         localStorage.setItem('newsView', view)
@@ -141,24 +100,29 @@ export const useNewsStore = defineStore('news', {
   },
 
   getters: {
+    currentPage(): number {
+      const route = useRoute()
+      return Number(route.query.page) || 1
+    },
+
     totalPages(): number {
-      return Math.ceil(this.pagination.total / this.pagination.limit);
+      return Math.ceil(this.totalItems / PAGINATION_LIMIT)
     },
 
     visiblePages(): (number | string)[] {
       const { calculateVisiblePages } = useNewsPagination(
-        this.pagination.page,
+        this.currentPage,
         this.totalPages
       )
       return calculateVisiblePages()
     },
 
     isFirstPage(): boolean {
-      return this.pagination.page === 1;
+      return this.currentPage === 1
     },
 
     isLastPage(): boolean {
-      return this.pagination.page >= this.totalPages;
+      return this.currentPage >= this.totalPages
     },
   }
 })

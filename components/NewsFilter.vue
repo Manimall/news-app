@@ -2,16 +2,15 @@
 import { generateSourceFilters } from '~/constants/newsSources'
 import type { FilterSource } from '~/types/news'
 
-const store = useNewsStore()
 const route = useRoute()
 
 const filters = generateSourceFilters();
 
 const emit = defineEmits(['update:modelValue'])
 
-const activeFilter = computed<FilterSource>({
+const activeFilter = computed({
   get: () => (route.query.source as FilterSource) || 'all',
-  set: (value: FilterSource) => store.updateSourceFilter(value)
+  set: (value) => emit('update:modelValue', value)
 })
 </script>
 

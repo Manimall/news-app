@@ -12,26 +12,20 @@ const store = useNewsStore()
 // Инициализация
 const init = async () => {
   try {
-    store.initClientSide();
-    await store.syncWithRoute();
-
-    if (store.items.length === 0 || route.query.search || route.query.page) {
-      await store.fetchNews();
-    }
+    store.initClientSide()
+    await store.fetchNews()
   } catch (error) {
-    console.error('Ошибка при инициализации:', error);
+    console.error('Ошибка при инициализации:', error)
   }
-};
+}
 
-init();
+init()
 
 // Оптимизированный поиск с debounce
 const applySearch = async (query: string) => {
   try {
-    if (store.filters.search === query && store.pagination.page === 1) return;
-
-    store.filters.search = query;
-    store.pagination.page = 1;
+    if ((route.query.search === query || (!route.query.search && query === '')) &&
+        (!route.query.page || route.query.page === '1')) return
 
     await router.push({
       query: {
@@ -39,11 +33,11 @@ const applySearch = async (query: string) => {
         search: query || undefined,
         page: undefined,
       }
-    });
+    })
   } catch (error) {
-    console.error('Ошибка при поиске:', error);
+    console.error('Ошибка при поиске:', error)
   }
-};
+}
 
 const searchQuery = computed({
   get: () => route.query.search?.toString() || '',
@@ -54,24 +48,18 @@ const searchQuery = computed({
 
 // Реакция на изменение URL
 watch(
-  () => ({
-    search: route.query.search,
-    page: route.query.page,
-    source: route.query.source
-  }),
+  () => route.query,
   async (newQuery, oldQuery) => {
-    // Пропускаем идентичные изменения
-    if (JSON.stringify(newQuery) === JSON.stringify(oldQuery)) return;
+    if (JSON.stringify(newQuery) === JSON.stringify(oldQuery)) return
 
     try {
-      await store.syncWithRoute();
-      await store.fetchNews();
+      await store.fetchNews()
     } catch (error) {
-      console.error('Ошибка при изменении URL:', error);
+      console.error('Ошибка при изменении URL:', error)
     }
   },
   { deep: true }
-);
+)
 </script>
 
 <template>
@@ -84,7 +72,11 @@ watch(
 
     <main class="news-content">
       <div class="controls-row">
-        <NewsFilter v-model="store.filters.source" :disabled="store.isLoading" />
+        <NewsFilter
+          :modelValue="route.query.source || 'all'"
+          @update:modelValue="(value) => store.updateSourceFilter(value)"
+          :disabled="store.isLoading"
+        />
 
         <ClientOnly>
           <ViewSwitcher
@@ -116,7 +108,7 @@ watch(
           <component
             :is="store.view === 'grid' ? NewsGrid : NewsList"
             :items="store.items"
-            :key="`${store.view}-${store.pagination.page}-${store.filters.search}`"
+            :key="`${store.view}-${route.query.page || 1}-${route.query.search || ''}-${route.query.source || 'all'}`"
           />
           <Pagination />
         </template>

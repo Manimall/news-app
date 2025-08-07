@@ -8,12 +8,12 @@ const handleReset = async () => {
   await store.resetFilters()
 }
 
-// вычисляемое свойство для disabled состояния
 const isDisabled = computed(() => {
+  const route = useRoute()
   return (
-    store.filters.source === 'all' &&
-    !store.filters.search &&
-    store.pagination.page === 1
+    (!route.query.source || route.query.source === 'all') &&
+    !route.query.search &&
+    (!route.query.page || route.query.page === '1')
   ) || store.isLoading
 })
 </script>
