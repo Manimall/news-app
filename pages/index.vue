@@ -19,7 +19,10 @@ const init = async () => {
   }
 }
 
-init()
+init().catch(error => {
+  console.error('Failed to initialize:', error)
+  store.error = 'Не удалось загрузить данные'
+})
 
 // Оптимизированный поиск с debounce
 const applySearch = async (query: string) => {
@@ -48,17 +51,18 @@ const searchQuery = computed({
 
 // Реакция на изменение URL
 watch(
-  () => route.query,
-  async (newQuery, oldQuery) => {
-    if (JSON.stringify(newQuery) === JSON.stringify(oldQuery)) return
-
-    try {
+  () => ({
+    search: route.query.search,
+    page: route.query.page,
+    source: route.query.source
+  }),
+  async (newVal, oldVal) => {
+    if (newVal.search !== oldVal.search ||
+        newVal.page !== oldVal.page ||
+        newVal.source !== oldVal.source) {
       await store.fetchNews()
-    } catch (error) {
-      console.error('Ошибка при изменении URL:', error)
     }
-  },
-  { deep: true }
+  }
 )
 </script>
 
