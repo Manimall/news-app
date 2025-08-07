@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import GridIcon from '~/assets/icons/grid-view.svg'
-import ListIcon from '~/assets/icons/list-view.svg'
+import { DEFAULT_VIEW_MODES, type ViewMode } from '~/constants/viewModes';
 
 const props = defineProps<{
-  current: 'grid' | 'list'
+  current: ViewMode
+  disabled?: boolean
 }>()
 
 const emit = defineEmits(['change'])
 
-const views = [
-  { id: 'grid' as const, icon: GridIcon, label: 'Grid view' },
-  { id: 'list' as const, icon: ListIcon, label: 'List view' }
-]
+const views = DEFAULT_VIEW_MODES
 
 </script>
 
@@ -23,6 +20,7 @@ const views = [
       class="view-button"
       :class="{ active: props.current === view.id }"
       @click="emit('change', view.id)"
+      :disabled="disabled"
       :aria-label="view.label"
     >
       <component :is="view.icon" class="icon" />
