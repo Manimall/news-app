@@ -1,20 +1,11 @@
 <script setup lang="ts">
+import { generateSourceFilters } from '~/constants/newsSources'
 import type { FilterSource } from '~/types/news'
 
 const store = useNewsStore()
 const route = useRoute()
 
-interface FilterOption {
-  value: FilterSource
-  label: string
-}
-
-const filters: FilterOption[] = [
-  { value: 'all', label: 'Все' },
-  { value: 'mos', label: 'Mos.ru' },
-  { value: 'lenta', label: 'Lenta.ru' },
-  { value: 'ria', label: 'Ria.ru' },
-]
+const filters = generateSourceFilters();
 
 const emit = defineEmits(['update:modelValue'])
 

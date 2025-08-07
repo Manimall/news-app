@@ -17,9 +17,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       rssFeeds: {
-        mos: 'https://www.mos.ru/rss',
-        lenta: 'https://lenta.ru/rss',
-        ria: 'https://ria.ru/export/rss2/archive/index.xml',
+        mos: process.env.NUXT_PUBLIC_MOS_API_URL,
+        lenta: process.env.NUXT_PUBLIC_LENTA_API_URL,
+        ria: process.env.NUXT_PUBLIC_RIA_API_URL,
       }
     }
   },

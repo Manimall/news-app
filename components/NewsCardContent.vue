@@ -1,18 +1,10 @@
 <script setup lang="ts">
 import type { NewsItem } from '~/types/news'
+import { getSourceUrl } from '~/constants/newsSources'
 
 defineProps<{
   item: NewsItem
 }>()
-
-const getSourceUrl = (source: string) => {
-  const sources: Record<string, string> = {
-    'mos': 'https://mos.ru',
-    'lenta': 'https://lenta.ru',
-    'ria': 'https://ria.ru'
-  }
-  return sources[source] || '#'
-}
 </script>
 
 <template>
