@@ -27,27 +27,25 @@ export const useNewsStore = defineStore('news', {
       try {
         if (this.isLoading) return
 
-        const route = useRoute()
         this.isLoading = true
         this.error = null
 
         const { fetchNews } = useFetchNews()
-        const { data, error } = await fetchNews({
-          source: route.query.source as FilterSource,
-          search: route.query.search?.toString(),
-          page: Number(route.query.page),
-          limit: PAGINATION_LIMIT,
-        })
+        const { data, error } = await fetchNews()
 
         if (error.value) throw new Error(error.value.message)
 
-        this.items = data?.data || []
-        this.totalItems = data?.total || 0
+        this.items = Array.isArray(data?.data) ? data.data : []
+        this.totalItems = typeof data?.total === 'number' ? data.total : 0
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to fetch news'
       } finally {
         this.isLoading = false
       }
+    },
+
+    getNewsById(id: string): NewsItem | undefined {
+      return this.items.find(item => item.id === id)
     },
 
     updateSourceFilter(source: FilterSource) {
@@ -62,10 +60,6 @@ export const useNewsStore = defineStore('news', {
           page: undefined
         }
       })
-    },
-
-    getNewsById(id: string): NewsItem | undefined {
-      return this.items.find(item => item.id === id)
     },
 
     resetFilters() {

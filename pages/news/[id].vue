@@ -8,9 +8,9 @@ const store = useNewsStore()
 
 const newsItem = computed(() => store.getNewsById(id as string))
 
-onMounted(async () => {
+onMounted(async (id: string) => {
   if (!newsItem.value && store.items.length === 0) {
-    await store.fetchNews()
+    await store.getNewsById(id)
   }
 })
 

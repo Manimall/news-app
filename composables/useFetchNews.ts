@@ -1,24 +1,17 @@
-import type { FilterSource } from '~/types/news'
-
-interface FetchNewsParams {
-  source?: FilterSource
-  search?: string
-  page?: number
-  limit?: number
-}
-
 export const PAGINATION_LIMIT = 10
 
 export const useFetchNews = () => {
-  const fetchNews = async (params: FetchNewsParams) => {
+  const route = useRoute()
+
+  const fetchNews = async () => {
     const { data, error, pending } = await useAsyncData(
-      `news-${params.source}-${params.search}-${params.page}`,
+      `news-${route.query.source}-${route.query.search}-${route.query.page}`,
       () => $fetch('/api/news', {
         query: {
-          source: params.source || 'all',
-          search: params.search || undefined,
-          page: params.page || 1,
-          limit: params.limit || PAGINATION_LIMIT,
+          source: route.query.source || 'all',
+          search: route.query.search?.toString().toLowerCase() || undefined,
+          page: Number(route.query.page) || 1,
+          limit: PAGINATION_LIMIT,
         }
       })
     )

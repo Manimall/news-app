@@ -9,61 +9,40 @@ const route = useRoute()
 const router = useRouter()
 const store = useNewsStore()
 
-// Инициализация
-const init = async () => {
-  try {
-    store.initClientSide()
+const { error: fetchError } = await useAsyncData(
+  'news',
+  async () => {
     await store.fetchNews()
-  } catch (error) {
-    console.error('Ошибка при инициализации:', error)
+    return {}
+  },
+  {
+    watch: [
+      () => route.query.page,
+      () => route.query.search,
+      () => route.query.source
+    ]
   }
-}
+)
 
-init().catch(error => {
-  console.error('Failed to initialize:', error)
-  store.error = 'Не удалось загрузить данные'
-})
+// Дебаунс-поиск
+const applySearch = async (value: string) => {
+  if (route.query.search === value) return;
 
-// Оптимизированный поиск с debounce
-const applySearch = async (query: string) => {
-  try {
-    if ((route.query.search === query || (!route.query.search && query === '')) &&
-        (!route.query.page || route.query.page === '1')) return
-
-    await router.push({
-      query: {
-        ...route.query,
-        search: query || undefined,
-        page: undefined,
-      }
-    })
-  } catch (error) {
-    console.error('Ошибка при поиске:', error)
-  }
+  await router.push({
+    query: {
+      ...route.query,
+      search: value || undefined,
+      page: undefined,
+    }
+  })
 }
 
 const searchQuery = computed({
   get: () => route.query.search?.toString() || '',
   set: debounce((value: string) => {
-    applySearch(value);
+    applySearch(value)
   }, 500),
-});
-
-// Реакция на изменение URL
-watch(
-  () => ({
-    search: route.query.search,
-    page: route.query.page,
-    source: route.query.source
-  }),
-  async (newVal, oldVal) => {
-    if (newVal.search !== oldVal.search ||
-        newVal.page !== oldVal.page ||
-        newVal.source !== oldVal.source) {
-      await store.fetchNews()
-    }
-  }
-)
+})
 </script>
 
 <template>
@@ -97,7 +76,7 @@ watch(
           <div class="loading-spinner">Загрузка...</div>
         </template>
 
-        <template v-else-if="store.error">
+        <template v-else-if="store.error || fetchError">
           <div class="error-message">
             {{ store.error }}
             <button @click="store.fetchNews" class="retry-button">Повторить</button>
