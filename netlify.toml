@@ -8,13 +8,6 @@
   status = 200
   force = true
 
-# Или для всех источников через параметры:
-[[redirects]]
-  from = "/api/news/:source"
-  to = "https://api.allorigins.win/get?url=:source"
-  status = 200
-  force = true
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
