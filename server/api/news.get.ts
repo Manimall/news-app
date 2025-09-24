@@ -71,6 +71,9 @@ async function fetchAndParseRss(sourceKey: string, url: string) {
 }
 
 export default defineEventHandler(async (event) => {
+  console.log('Request URL:', event.node.req.url)
+  console.log('Query params:', getQuery(event))
+
   const { source = 'all', page = 1, limit = 10, search } = getQuery(event)
   const config = useRuntimeConfig().public.rssFeeds
 
