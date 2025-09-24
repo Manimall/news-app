@@ -1,14 +1,19 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  functions = "netlify/functions"
 
 [[redirects]]
-  from = "/api/*"
-  to = "https://api.allorigins.win/get?url=:splat"
+  from = "/api/news"
+  to = "https://api.allorigins.win/get?url=https://lenta.ru/rss"
   status = 200
   force = true
-  conditions = {Type = "request"}
+
+# Или для всех источников через параметры:
+[[redirects]]
+  from = "/api/news/:source"
+  to = "https://api.allorigins.win/get?url=:source"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
